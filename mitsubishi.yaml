@@ -1,0 +1,73 @@
+# Wemos D1/S2
+# CN105 Pin:
+#   1. n/c (12v)
+#   2. Gnd
+#   3. vbus (5v)
+#   4. Pin 18 (tx from minisplit)
+#   5. Pin 16 (rx to minisplit)
+esphome:
+  name: mitsubishi 
+  name_add_mac_suffix: true
+  platformio_options:
+    build_unflags:
+      - "-std=gnu++11"
+    build_flags:
+      - "-std=gnu++17"
+
+preferences:
+  flash_write_interval: 10min
+
+esp32:
+  board: lolin_s2_mini
+  variant: ESP32S2
+  framework:
+    type: arduino
+    platform_version: 6.4.0
+
+external_components:
+  - source: github://geoffdavis/esphome-mitsubishiheatpump@develop
+
+# Enable logging
+logger:
+  #level: VERBOSE
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+ota:
+  password: ""
+
+web_server:
+  port: 80
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Dashboard Fallback Hotspot"
+    password: ""
+
+captive_portal:
+
+# Sensors with general information.
+sensor:
+  # Uptime sensor.
+  - platform: uptime
+    name: Uptime
+
+  # WiFi Signal sensor.
+  - platform: wifi_signal
+    name: WiFi Signal
+    update_interval: 60s
+
+climate:
+  - platform: mitsubishi_heatpump
+    name: "Heat Pump"
+    hardware_uart: UART1
+    rx_pin: 18
+    tx_pin: 16
+    baud_rate: 2400
+    update_interval: 500ms
