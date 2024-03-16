@@ -62,6 +62,7 @@ sensor:
   # Uptime sensor.
   - platform: uptime
     name: Uptime
+    update_interval: 60s
 
   # WiFi Signal sensor.
   - platform: wifi_signal
