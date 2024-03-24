@@ -74,16 +74,23 @@ canbus:
           state: !lambda 'return x[4];'
       - sensor.template.publish:
           id: byte_5
-          state: !lambda 'return x[5];'
+          state: !lambda 'return x[5] & ~(0x18);'
       - binary_sensor.template.publish:
           id: draining
           state: !lambda 'return (x[5] & 0x10) == 0x10;'
+      - binary_sensor.template.publish:
+          id: continuous_operation
+          state: !lambda 'return (x[5] & 0x08) == 0x08;'
       - sensor.template.publish:
           id: byte_6
           state: !lambda 'return x[6];'
       - sensor.template.publish:
           id: byte_7
-          state: !lambda 'return x[7];'
+          state: !lambda 'return x[7] & ~(0x01);'
+      - binary_sensor.template.publish:
+          id: condensate_overflow
+          state: !lambda 'return (x[7] & 0x01) == 0x01;'
+            
 
 interval:
   - interval: 5s
@@ -151,8 +158,10 @@ binary_sensor:
   - platform: template
     name: Draining
     id: draining
+  - platform: template
+    name: Continuous Operation
+    id: continuous_operation
+  - platform: template
+    name: Condensate Overflow
+    id: condensate_overflow
 
-switch:
-  - platform: gpio
-    pin: GPIO23
-    name: "CAN SE"
