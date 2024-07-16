@@ -5,7 +5,8 @@ esphome:
     board_build.flash_mode: dio
 
 esp32:
-  board: esp32dev
+  board:
+    esp32dev
     #framework:
     #type: esp-idf
 
@@ -18,6 +19,7 @@ logger:
 api:
   password: ""
 ota:
+  platform: esphome
   password: ""
 wifi:
   ssid: !secret wifi_ssid
@@ -41,6 +43,12 @@ light:
     effects:
       - pulse:
 
+# Setup outputs
+output:
+  - platform: gpio
+    id: can_se_pin
+    pin: GPIO23
+
 # https://tinymicros.com/wiki/AlorAir_Sentinel_HD55_Dehumidifier
 # https://community.home-assistant.io/t/automate-alorair-sentinel-hd55-dehumidifier/306084/23
 canbus:
@@ -49,54 +57,54 @@ canbus:
     rx_pin: GPIO26
     can_id: 0x05
     bit_rate: 50kbps
-      #bit_rate: 125kbps
+    #bit_rate: 125kbps
     use_extended_id: false
     on_frame:
-    - can_id: 0x123
-      then:
-      - logger.log:
-          format: "%02x %02x %02x %02x %02x %02x %02x %02x"
-          args: [ 'x[0]', 'x[1]', 'x[2]', 'x[3]', 'x[4]', 'x[5]', 'x[6]', 'x[7]' ]
-      - sensor.template.publish:
-          id: humidity_actual
-          state: !lambda 'return x[0];'
-      - sensor.template.publish:
-          id: humidity_setpoint
-          state: !lambda 'return x[1];'
-      - sensor.template.publish:
-          id: byte_2
-          state: !lambda 'return x[2];'
-      - sensor.template.publish:
-          id: temperature
-          state: !lambda 'return x[3];'
-      - sensor.template.publish:
-          id: byte_4
-          state: !lambda 'return x[4];'
-      - sensor.template.publish:
-          id: byte_5
-          state: !lambda 'return x[5] & ~(0x18);'
-      - binary_sensor.template.publish:
-          id: draining
-          state: !lambda 'return (x[5] & 0x10) == 0x10;'
-      - binary_sensor.template.publish:
-          id: continuous_operation
-          state: !lambda 'return (x[5] & 0x08) == 0x08;'
-      - sensor.template.publish:
-          id: byte_6
-          state: !lambda 'return x[6];'
-      - sensor.template.publish:
-          id: byte_7
-          state: !lambda 'return x[7] & ~(0x01);'
-      - binary_sensor.template.publish:
-          id: condensate_overflow
-          state: !lambda 'return (x[7] & 0x01) == 0x01;'
-            
+      - can_id: 0x123
+        then:
+          - logger.log:
+              format: "%02x %02x %02x %02x %02x %02x %02x %02x"
+              args:
+                ["x[0]", "x[1]", "x[2]", "x[3]", "x[4]", "x[5]", "x[6]", "x[7]"]
+          - sensor.template.publish:
+              id: humidity_actual
+              state: !lambda "return x[0];"
+          - sensor.template.publish:
+              id: humidity_setpoint
+              state: !lambda "return x[1];"
+          - sensor.template.publish:
+              id: byte_2
+              state: !lambda "return x[2];"
+          - sensor.template.publish:
+              id: temperature
+              state: !lambda "return x[3];"
+          - sensor.template.publish:
+              id: byte_4
+              state: !lambda "return x[4];"
+          - sensor.template.publish:
+              id: byte_5
+              state: !lambda "return x[5] & ~(0x18);"
+          - binary_sensor.template.publish:
+              id: draining
+              state: !lambda "return (x[5] & 0x10) == 0x10;"
+          - binary_sensor.template.publish:
+              id: continuous_operation
+              state: !lambda "return (x[5] & 0x08) == 0x08;"
+          - sensor.template.publish:
+              id: byte_6
+              state: !lambda "return x[6];"
+          - sensor.template.publish:
+              id: byte_7
+              state: !lambda "return x[7] & ~(0x01);"
+          - binary_sensor.template.publish:
+              id: condensate_overflow
+              state: !lambda "return (x[7] & 0x01) == 0x01;"
 
 interval:
   - interval: 5s
     then:
       - canbus.send:
-          data: [ 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]
+          data: [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
           can_id: 0x123
 
 sensor:
@@ -164,4 +172,3 @@ binary_sensor:
   - platform: template
     name: Condensate Overflow
     id: condensate_overflow
-
