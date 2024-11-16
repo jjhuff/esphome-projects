@@ -81,15 +81,23 @@ canbus:
           - sensor.template.publish:
               id: byte_4
               state: !lambda "return x[4];"
+
           - sensor.template.publish:
               id: byte_5
-              state: !lambda "return x[5] & ~(0x18);"
+              state: !lambda "return x[5] & ~(0x1A);"
+
           - binary_sensor.template.publish:
               id: draining
               state: !lambda "return (x[5] & 0x10) == 0x10;"
+
           - binary_sensor.template.publish:
               id: continuous_operation
               state: !lambda "return (x[5] & 0x08) == 0x08;"
+
+          - binary_sensor.template.publish:
+              id: running
+              state: !lambda "return (x[5] & 0x02) == 0x02;"
+
           - sensor.template.publish:
               id: byte_6
               state: !lambda "return x[6];"
@@ -99,7 +107,6 @@ canbus:
           - binary_sensor.template.publish:
               id: condensate_overflow
               state: !lambda "return (x[7] & 0x01) == 0x01;"
-
 interval:
   - interval: 5s
     then:
@@ -172,3 +179,20 @@ binary_sensor:
   - platform: template
     name: Condensate Overflow
     id: condensate_overflow
+  - platform: template
+    name: Running
+    id: running
+
+number:
+  - platform: template
+    name: Set Point
+    min_value: 20
+    max_value: 99
+    step: 1
+    set_action:
+      then:
+        - lambda: |-
+            x = x + 128;
+            std::vector< uint8_t > data{ x, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            id(esp32_can)->send_data(0x123, 0, data);
+    lambda: return(id(humidity_setpoint).state);
