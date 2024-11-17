@@ -25,11 +25,11 @@ esp32:
     platform_version: 6.4.0
 
 external_components:
-  - source: github://geoffdavis/esphome-mitsubishiheatpump@2.5.0
+  - source: github://echavet/MitsubishiCN105ESPHome
 
 # Enable logging
 logger:
-  level: VERBOSE
+  level: INFO
 
 # Enable Home Assistant API
 api:
@@ -64,13 +64,37 @@ sensor:
     name: WiFi Signal
     update_interval: 60s
 
+uart:
+  id: HP_UART
+  rx_pin: 39
+  tx_pin: 37
+  baud_rate: 2400
+
 climate:
-  - platform: mitsubishi_heatpump
+  - platform: cn105
+    id: hp
     name: "Heat Pump"
-    hardware_uart: UART1
-    rx_pin: 39
-    tx_pin: 37
-    #    rx_pin: 18
-    #    tx_pin: 16
-    baud_rate: 2400
-    update_interval: 500ms
+    update_interval: 1500ms # update interval can be adjusted after a first run and logs monitoring
+    debounce_delay: 100ms
+    icon: mdi:heat-pump
+    # Various optional sensors, not all sensors are supported by all heatpumps
+    compressor_frequency_sensor:
+      name: Compressor Frequency
+      entity_category: diagnostic
+    outside_air_temperature_sensor:
+      name: Outside Air Temp
+    vertical_vane_select:
+      name: Vertical Vane
+    horizontal_vane_select:
+      name: Horizontal Vane
+    isee_sensor:
+      name: ISEE Sensor
+    stage_sensor:
+      name: Stage
+      entity_category: diagnostic
+    sub_mode_sensor:
+      name: Sub Mode
+      entity_category: diagnostic
+    auto_sub_mode_sensor:
+      name: Auto Sub Mode
+      entity_category: diagnostic
