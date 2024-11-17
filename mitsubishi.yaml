@@ -3,10 +3,10 @@
 #   1. n/c (12v)
 #   2. Gnd
 #   3. vbus (5v)
-#   4. Pin 18 (tx from minisplit)
-#   5. Pin 16 (rx to minisplit)
+#   4. Pin 39 (tx from minisplit) (pin 18 on older boards)
+#   5. Pin 37 (rx to minisplit) (pin 16 on older boards)
 esphome:
-  name: mitsubishi 
+  name: mitsubishi
   name_add_mac_suffix: true
   platformio_options:
     build_unflags:
@@ -25,17 +25,18 @@ esp32:
     platform_version: 6.4.0
 
 external_components:
-  - source: github://geoffdavis/esphome-mitsubishiheatpump@develop
+  - source: github://geoffdavis/esphome-mitsubishiheatpump@2.5.0
 
 # Enable logging
 logger:
-  #level: VERBOSE
+  level: VERBOSE
 
 # Enable Home Assistant API
 api:
   password: ""
 
 ota:
+  platform: esphome
   password: ""
 
 web_server:
@@ -67,7 +68,9 @@ climate:
   - platform: mitsubishi_heatpump
     name: "Heat Pump"
     hardware_uart: UART1
-    rx_pin: 18
-    tx_pin: 16
+    rx_pin: 39
+    tx_pin: 37
+    #    rx_pin: 18
+    #    tx_pin: 16
     baud_rate: 2400
     update_interval: 500ms

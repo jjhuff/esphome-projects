@@ -8,5 +8,6 @@ fi
 if [ -c "/dev/ttyACM0" ]; then
   ARGS+=" --device /dev/ttyACM0"
 fi
+#docker run --rm -it  -v "${PWD}":/config $ARGS esphome/esphome:2024.6.6 $@
+docker run --rm -it  -v "${PWD}":/config $ARGS esphome/esphome:2024.10.3 $@
 
-docker run --rm -it  -v "${PWD}":/config $ARGS esphome/esphome:2024.6.6 $@
